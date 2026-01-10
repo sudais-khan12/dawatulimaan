@@ -27,8 +27,19 @@ import {
   type EventFormValues,
 } from "@/app/(admin)/admin/dashboard/events/new/schema";
 import { createEventAction } from "@/app/(admin)/admin/dashboard/events/actions/create-event";
+import { Textarea } from "@/components/ui/textarea";
 
-const EventCreateForm = () => {
+type EventCreateFormProps = {
+  onSubmitAction?: (values: EventFormValues) => Promise<unknown>;
+  submitLabel?: string;
+  defaultValues?: Partial<EventFormValues>;
+};
+
+const EventCreateForm = ({
+  onSubmitAction,
+  submitLabel = "Create event",
+  defaultValues,
+}: EventCreateFormProps) => {
   const [status, setStatus] = useState<{
     type: "idle" | "success" | "error";
     message?: string;
@@ -39,11 +50,11 @@ const EventCreateForm = () => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       title: "",
-      slug: "",
       date: "",
       location: "",
       type: undefined,
       description: "",
+      ...defaultValues,
     },
   });
 
@@ -51,12 +62,21 @@ const EventCreateForm = () => {
     setStatus({ type: "idle" });
     startTransition(async () => {
       try {
-        await createEventAction(values);
+        const action = onSubmitAction ?? createEventAction;
+        await action(values);
         setStatus({
           type: "success",
-          message: "Event created successfully.",
+          message: submitLabel === "Create event" ? "Event created successfully." : "Changes saved.",
         });
-        form.reset();
+        form.reset(
+          defaultValues ?? {
+            title: "",
+            date: "",
+            location: "",
+            type: undefined,
+            description: "",
+          },
+        );
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to create event.";
@@ -79,20 +99,6 @@ const EventCreateForm = () => {
                 <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input placeholder="Community Dinner" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Slug</FormLabel>
-                <FormControl>
-                  <Input placeholder="community-dinner" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,10 +165,9 @@ const EventCreateForm = () => {
               <FormItem>
                 <FormLabel>Description (optional)</FormLabel>
                 <FormControl>
-                  <textarea
+                  <Textarea
                     placeholder="Brief details about the event"
                     rows={4}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10"
                     {...field}
                   />
                 </FormControl>
@@ -179,7 +184,11 @@ const EventCreateForm = () => {
               Back to events
             </Link>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create event"}
+              {isSubmitting
+                ? submitLabel === "Create event"
+                  ? "Creating..."
+                  : "Saving..."
+                : submitLabel}
             </Button>
           </div>
         </form>

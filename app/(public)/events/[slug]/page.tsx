@@ -1,6 +1,8 @@
 import EventRegistrationForm from "@/app/components/event-registration-form";
 import { getEventBySlug } from "@/lib/persistence/events";
 import Link from "next/link";
+import type { FormFieldConfig } from "@/lib/forms/types";
+import { demoEventFormFields } from "@/lib/forms/DemoEventForm";
 
 type EventPageProps = {
   params: Promise<{ slug: string }>;
@@ -9,6 +11,9 @@ type EventPageProps = {
 const EventPage = async ({ params }: EventPageProps) => {
   const { slug } = await params;
   const { data: event } = await getEventBySlug(slug);
+  const formConfig =
+    (event?.form_config as unknown as FormFieldConfig[] | undefined) ??
+    demoEventFormFields;
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-16">
@@ -53,7 +58,11 @@ const EventPage = async ({ params }: EventPageProps) => {
           </div>
         </div>
 
-        <EventRegistrationForm eventSlug={slug} eventTitle={event?.title ?? slug} />
+        <EventRegistrationForm
+          eventSlug={slug}
+          eventTitle={event?.title ?? slug}
+          fields={formConfig}
+        />
       </div>
     </div>
   );

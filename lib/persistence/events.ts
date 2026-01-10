@@ -89,3 +89,55 @@ export const createEvent = async (
 
   return { data: data as EventRow, error: null };
 };
+
+export const getEventById = async (
+  id: string,
+  client = getSupabaseClient(),
+): Promise<{ data: EventRow | null; error: Error | null }> => {
+  const { data, error } = await client
+    .from("events")
+    .select("id, slug, title, date, location, type, description")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data: (data as EventRow) ?? null, error: null };
+};
+
+export type UpdateEventInput = {
+  title?: string;
+  slug?: string;
+  date?: string;
+  location?: string | null;
+  type?: "virtual" | "in-person" | null;
+  description?: string | null;
+};
+
+export const updateEvent = async (
+  id: string,
+  input: UpdateEventInput,
+  client = getSupabaseClient(),
+): Promise<{ data: EventRow | null; error: Error | null }> => {
+  const { data, error } = await client
+    .from("events")
+    .update({
+      title: input.title,
+      slug: input.slug,
+      date: input.date,
+      location: input.location ?? null,
+      type: input.type ?? null,
+      description: input.description ?? null,
+    })
+    .eq("id", id)
+    .select("id, slug, title, date, location, type, description")
+    .single();
+
+  if (error) {
+    return { data: null, error };
+  }
+
+  return { data: data as EventRow, error: null };
+};

@@ -1,21 +1,22 @@
 "use server";
 
 import { eventFormSchema } from "@/app/(admin)/admin/dashboard/events/new/schema";
-import { createEvent } from "@/lib/persistence/events";
+import { updateEvent } from "@/lib/persistence/events";
 import { slugify } from "@/lib/slugify";
 
-export const createEventAction = async (values: unknown) => {
-  const parsed = eventFormSchema.safeParse(values);
+export const updateEventAction = async (id: string, values: unknown) => {
+  const parsed = eventFormSchema.partial().safeParse(values);
   if (!parsed.success) {
     throw new Error("Invalid event data");
   }
 
-  const slug = slugify(parsed.data.title);
+  const updatePayload = { ...parsed.data };
 
-  const result = await createEvent({
-    ...parsed.data,
-    slug,
-  });
+  if (parsed.data.title) {
+    updatePayload.slug = slugify(parsed.data.title);
+  }
+
+  const result = await updateEvent(id, updatePayload);
 
   if (result.error) {
     if (typeof (result.error as any).code === "string") {
