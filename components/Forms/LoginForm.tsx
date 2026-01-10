@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loginAction } from "@/app/(admin)/login/actions/login";
+import { loginAction } from "@/lib/login";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -73,7 +73,11 @@ const LoginForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

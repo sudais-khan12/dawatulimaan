@@ -5,9 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import ContentBlock from "@/app/components/forms/ContentBlock";
-import InputField from "@/app/components/forms/InputField";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Form } from "@/components/ui/form";
 import {
   buildDefaultValues,
@@ -15,13 +14,16 @@ import {
   isContentField,
 } from "@/lib/forms/schema";
 import type { FormFieldConfig } from "@/lib/forms/types";
+import ContentBlock from "./Forms/ContentBlock";
+import InputField from "./Forms/InputField";
 
 type FormRendererProps = {
   fields: FormFieldConfig[];
   onSubmit?: (values: Record<string, unknown>) => void;
+  disabled?: boolean;
 };
 
-const FormRenderer = ({ fields, onSubmit }: FormRendererProps) => {
+const FormRenderer = ({ fields, onSubmit, disabled }: FormRendererProps) => {
   const formSchema = useMemo(() => buildFormSchema(fields), [fields]);
   type FormValues = z.infer<typeof formSchema>;
 
@@ -45,29 +47,29 @@ const FormRenderer = ({ fields, onSubmit }: FormRendererProps) => {
             return <ContentBlock key={field.id} field={field} />;
           }
 
-          if (field.type === "checkbox") {
-            return (
-              <InputField key={field.id} control={form.control} field={field} />
-            );
-          }
-
-          if (field.type === "select") {
-            return (
-              <InputField key={field.id} control={form.control} field={field} />
-            );
-          }
-
           return (
-            <InputField key={field.id} control={form.control} field={field} />
+            <InputField
+              key={field.id}
+              control={form.control}
+              field={field}
+              disabled={disabled || form.formState.isSubmitting}
+            />
           );
         })}
 
         <Button
           type="submit"
           className="w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={disabled || form.formState.isSubmitting}
         >
-          {form.formState.isSubmitting ? "Submitting..." : "Submit"}
+          {form.formState.isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Spinner className="h-4 w-4" />
+              <span>Submitting</span>
+            </span>
+          ) : (
+            "Submit"
+          )}
         </Button>
       </form>
     </Form>

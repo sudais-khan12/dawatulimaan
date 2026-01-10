@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Form,
   FormControl,
@@ -22,45 +24,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  eventFormSchema,
-  type EventFormValues,
-} from "@/app/(admin)/admin/dashboard/events/new/schema";
-import { createEventAction } from "@/app/(admin)/admin/dashboard/events/actions/create-event";
+import { createEventAction } from "@/lib/eventActions/create-event";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { eventFormSchema, EventFormValues } from "@/schema/new";
 
-const EventCreateForm = () => {
-  const [status, setStatus] = useState<{
-    type: "idle" | "success" | "error";
-    message?: string;
-  }>({ type: "idle" });
+type EventCreateFormProps = {
+  onSubmitAction?: (values: EventFormValues) => Promise<unknown>;
+  submitLabel?: string;
+  defaultValues?: Partial<EventFormValues>;
+  onSuccessRedirect?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+};
+
+const EventCreateForm = ({
+  onSubmitAction,
+  submitLabel = "Create event",
+  defaultValues,
+  onSuccessRedirect = "/admin/dashboard/events",
+  onSuccess,
+  onCancel,
+}: EventCreateFormProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
       title: "",
-      slug: "",
       date: "",
       location: "",
       type: undefined,
       description: "",
+      ...defaultValues,
     },
   });
 
   const onSubmit = (values: EventFormValues) => {
-    setStatus({ type: "idle" });
     startTransition(async () => {
       try {
-        await createEventAction(values);
-        setStatus({
-          type: "success",
-          message: "Event created successfully.",
-        });
-        form.reset();
+        const action = onSubmitAction ?? createEventAction;
+        await action(values);
+        form.reset(defaultValues ?? undefined);
+        if (onSuccess) onSuccess();
+        else if (onSuccessRedirect) router.replace(onSuccessRedirect);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to create event.";
-        setStatus({ type: "error", message });
+        toast.error("Unable to save event", { description: message });
       }
     });
   };
@@ -79,20 +91,6 @@ const EventCreateForm = () => {
                 <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input placeholder="Community Dinner" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Slug</FormLabel>
-                <FormControl>
-                  <Input placeholder="community-dinner" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,10 +157,9 @@ const EventCreateForm = () => {
               <FormItem>
                 <FormLabel>Description (optional)</FormLabel>
                 <FormControl>
-                  <textarea
+                  <Textarea
                     placeholder="Brief details about the event"
                     rows={4}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10"
                     {...field}
                   />
                 </FormControl>
@@ -179,22 +176,34 @@ const EventCreateForm = () => {
               Back to events
             </Link>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create event"}
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Spinner className="h-4 w-4" />
+                  <span>
+                    {submitLabel === "Create event"
+                      ? "Creating..."
+                      : "Saving..."}
+                  </span>
+                </span>
+              ) : (
+                submitLabel
+              )}
             </Button>
           </div>
+          {onCancel && (
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
-
-      {status.type === "success" && status.message && (
-        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-          {status.message}
-        </div>
-      )}
-      {status.type === "error" && status.message && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {status.message}
-        </div>
-      )}
     </div>
   );
 };

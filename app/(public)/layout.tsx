@@ -1,4 +1,4 @@
-import PublicNav from "@/app/components/PublicNav";
+import PublicNav from "@/components/PublicNav";
 
 export default function PublicLayout({
   children,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import PageWrapper from "./components/PageWrapper";
+import PageWrapper from "../components/PageWrapper";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Dawat Ul Imaan",
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <PageWrapper>{children}</PageWrapper>
+        <PageWrapper>
+          {children}
+          <Toaster />
+        </PageWrapper>
       </body>
     </html>
   );

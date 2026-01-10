@@ -1,7 +1,8 @@
 "use server";
 
-import { eventFormSchema } from "@/app/(admin)/admin/dashboard/events/new/schema";
 import { createEvent } from "@/lib/persistence/events";
+import { slugify } from "@/lib/slugify";
+import { eventFormSchema } from "@/schema/new";
 
 export const createEventAction = async (values: unknown) => {
   const parsed = eventFormSchema.safeParse(values);
@@ -9,7 +10,12 @@ export const createEventAction = async (values: unknown) => {
     throw new Error("Invalid event data");
   }
 
-  const result = await createEvent(parsed.data);
+  const slug = slugify(parsed.data.title);
+
+  const result = await createEvent({
+    ...parsed.data,
+    slug,
+  });
 
   if (result.error) {
     if (typeof (result.error as any).code === "string") {

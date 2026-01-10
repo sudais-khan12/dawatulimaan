@@ -8,14 +8,28 @@ type EventCardProps = {
   description?: string | null;
 };
 
+const formatDate = (value?: string | null) => {
+  if (!value) return null;
+  try {
+    const d = new Date(value);
+    return d.toISOString().split("T")[0];
+  } catch {
+    return value;
+  }
+};
+
 const EventCard = ({ title, slug, date, location, description }: EventCardProps) => {
+  const safeDate = formatDate(date);
+
   return (
-    <div className="flex h-full flex-col justify-between rounded-lg border bg-white p-5 shadow-sm">
+    <div className="group flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {date && (
+        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-teal-700">
+          {title}
+        </h3>
+        {safeDate && (
           <p className="text-sm text-gray-600">
-            {new Date(date).toLocaleDateString()}
+            {safeDate}
           </p>
         )}
         {location && (
@@ -30,7 +44,7 @@ const EventCard = ({ title, slug, date, location, description }: EventCardProps)
       <div className="pt-4">
         <Link
           href={`/events/${slug}`}
-          className="inline-flex items-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="inline-flex items-center rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-800"
         >
           Register
         </Link>
