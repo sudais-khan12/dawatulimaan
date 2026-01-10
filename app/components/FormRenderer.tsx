@@ -19,9 +19,10 @@ import type { FormFieldConfig } from "@/lib/forms/types";
 type FormRendererProps = {
   fields: FormFieldConfig[];
   onSubmit?: (values: Record<string, unknown>) => void;
+  disabled?: boolean;
 };
 
-const FormRenderer = ({ fields, onSubmit }: FormRendererProps) => {
+const FormRenderer = ({ fields, onSubmit, disabled }: FormRendererProps) => {
   const formSchema = useMemo(() => buildFormSchema(fields), [fields]);
   type FormValues = z.infer<typeof formSchema>;
 
@@ -45,27 +46,20 @@ const FormRenderer = ({ fields, onSubmit }: FormRendererProps) => {
             return <ContentBlock key={field.id} field={field} />;
           }
 
-          if (field.type === "checkbox") {
-            return (
-              <InputField key={field.id} control={form.control} field={field} />
-            );
-          }
-
-          if (field.type === "select") {
-            return (
-              <InputField key={field.id} control={form.control} field={field} />
-            );
-          }
-
           return (
-            <InputField key={field.id} control={form.control} field={field} />
+            <InputField
+              key={field.id}
+              control={form.control}
+              field={field}
+              disabled={disabled || form.formState.isSubmitting}
+            />
           );
         })}
 
         <Button
           type="submit"
           className="w-full"
-          disabled={form.formState.isSubmitting}
+          disabled={disabled || form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? "Submitting..." : "Submit"}
         </Button>
