@@ -20,7 +20,8 @@ type RegistrationRow = {
   event_id: string;
   people: {
     email: string;
-    full_name?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
   } | null;
 };
 
@@ -43,7 +44,7 @@ const parseRecipients = (rows: RegistrationRow[]): Recipient[] => {
       unique.set(email, {
         personId: row.person_id,
         email,
-        fullName: row.people?.full_name,
+        fullName: `${row.people?.first_name ?? ""} ${row.people?.last_name ?? ""}`.trim(),
       });
     }
   });
@@ -57,7 +58,9 @@ export const getUniqueRecipientsForEvent = async (
 ): Promise<{ data: Recipient[]; error: Error | null }> => {
   const { data, error } = await client
     .from("registrations")
-    .select("person_id, event_id, people:person_id(email, full_name)")
+    .select(
+      "person_id, event_id, people:person_id(email, first_name, last_name)",
+    )
     .eq("event_id", eventId);
 
   if (error || !data) {

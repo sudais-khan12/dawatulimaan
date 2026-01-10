@@ -2,12 +2,25 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Person } from "@/schema";
 
 export type PersonInsert = {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone?: string | null;
 };
 
 type SupabasePerson = Person & { id: string };
+
+type SupabasePersonRow = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+};
+
+const mapPerson = (row: SupabasePersonRow): SupabasePerson => ({
+  id: row.id,
+  fullName: `${row.first_name} ${row.last_name}`.trim(),
+  email: row.email,
+});
 
 export const findPersonByEmail = async (
   email: string,
@@ -15,7 +28,7 @@ export const findPersonByEmail = async (
 ): Promise<{ data: SupabasePerson | null; error: Error | null }> => {
   const { data, error } = await client
     .from("people")
-    .select("*")
+    .select("id, first_name, last_name, email")
     .eq("email", email)
     .maybeSingle();
 
@@ -23,7 +36,10 @@ export const findPersonByEmail = async (
     return { data: null, error };
   }
 
-  return { data, error: null };
+  return {
+    data: data ? mapPerson(data as unknown as SupabasePersonRow) : null,
+    error: null,
+  };
 };
 
 export const findOrCreatePersonByEmail = async (
@@ -42,16 +58,19 @@ export const findOrCreatePersonByEmail = async (
   const { data, error } = await client
     .from("people")
     .insert({
-      full_name: payload.fullName,
+      first_name: payload.firstName,
+      last_name: payload.lastName,
       email: payload.email,
-      phone: payload.phone ?? null,
     })
-    .select()
+    .select("id, first_name, last_name, email")
     .single();
 
   if (error) {
     return { data: null, error };
   }
 
-  return { data: data as SupabasePerson, error: null };
+  return {
+    data: mapPerson(data as unknown as SupabasePersonRow),
+    error: null,
+  };
 };

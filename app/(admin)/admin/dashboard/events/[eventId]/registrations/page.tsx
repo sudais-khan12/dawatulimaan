@@ -1,24 +1,31 @@
-import Link from "next/link";
+import { getRegistrationsByEvent } from "@/lib/persistence/registrations-view";
 
-import { getAllEvents } from "@/lib/persistence/events";
+type PageProps = {
+  params: Promise<{ eventId: string }>;
+};
 
-const AdminEventsPage = async () => {
-  const { data: events, error } = await getAllEvents();
+const AdminEventRegistrationsPage = async ({ params }: PageProps) => {
+  const { eventId } = await params;
+  const { data, error } = await getRegistrationsByEvent(eventId);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
-        <p className="text-sm text-gray-600">List of all events.</p>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Registrations
+        </h1>
+        <p className="text-sm text-gray-600">
+          Event ID: {eventId}
+        </p>
       </div>
 
       {error ? (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           {error.message}
         </div>
-      ) : events.length === 0 ? (
+      ) : data.length === 0 ? (
         <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-          No events found.
+          No registrations found for this event.
         </div>
       ) : (
         <div className="overflow-hidden rounded-md border">
@@ -26,34 +33,25 @@ const AdminEventsPage = async () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Name
+                  Full name
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Date
+                  Email
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Actions
+                  Registered at
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {events.map((event) => (
-                <tr key={event.id}>
-                  <td className="px-4 py-3 text-gray-900">
-                    {event.title ?? "Untitled event"}
-                  </td>
+              {data.map((row) => (
+                <tr key={row.id}>
+                  <td className="px-4 py-3 text-gray-900">{row.fullName}</td>
+                  <td className="px-4 py-3 text-gray-700">{row.email}</td>
                   <td className="px-4 py-3 text-gray-700">
-                    {event.date
-                      ? new Date(event.date).toLocaleDateString()
+                    {row.createdAt
+                      ? new Date(row.createdAt).toLocaleString()
                       : "N/A"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    <Link
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                      href={`/admin/dashboard/events/${event.id}/registrations`}
-                    >
-                      View registrations
-                    </Link>
                   </td>
                 </tr>
               ))}
@@ -65,4 +63,4 @@ const AdminEventsPage = async () => {
   );
 };
 
-export default AdminEventsPage;
+export default AdminEventRegistrationsPage;
