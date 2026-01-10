@@ -1,10 +1,8 @@
 import Link from "next/link";
 
-import { eventFormSchema } from "@/app/(admin)/admin/dashboard/events/new/schema";
-import { updateEventAction } from "@/app/(admin)/admin/dashboard/events/actions/update-event";
+import { updateEventAction } from "@/lib/eventActions/update-event";
 import { getEventById } from "@/lib/persistence/events";
-import EventCreateForm from "../../new/EventCreateForm";
-import { z } from "zod";
+import EventCreateForm from "../../../../../../../components/Forms/EventCreateForm";
 
 type PageProps = {
   params: Promise<{ eventId: string }>;
@@ -16,12 +14,12 @@ const EditEventPage = async ({ params }: PageProps) => {
 
   const defaultValues = event
     ? {
-      title: event.title ?? "",
-      date: event.date ?? "",
-      location: event.location ?? "",
-      type: (event.type as "virtual" | "in-person" | undefined) ?? "virtual",
-      description: event.description ?? "",
-    }
+        title: event.title ?? "",
+        date: event.date ?? "",
+        location: event.location ?? "",
+        type: (event.type as "virtual" | "in-person" | undefined) ?? "virtual",
+        description: event.description ?? "",
+      }
     : undefined;
 
   return (
@@ -47,6 +45,7 @@ const EditEventPage = async ({ params }: PageProps) => {
           onSubmitAction={updateEventAction.bind(null, eventId)}
           submitLabel="Save changes"
           defaultValues={defaultValues}
+          onSuccessRedirect="/admin/dashboard/events"
         />
       )}
     </div>

@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Form,
   FormControl,
@@ -22,29 +24,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  eventFormSchema,
-  type EventFormValues,
-} from "@/app/(admin)/admin/dashboard/events/new/schema";
-import { createEventAction } from "@/app/(admin)/admin/dashboard/events/actions/create-event";
+import { createEventAction } from "@/lib/eventActions/create-event";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { eventFormSchema, EventFormValues } from "@/schema/new";
 
 type EventCreateFormProps = {
   onSubmitAction?: (values: EventFormValues) => Promise<unknown>;
   submitLabel?: string;
   defaultValues?: Partial<EventFormValues>;
+  onSuccessRedirect?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 const EventCreateForm = ({
   onSubmitAction,
   submitLabel = "Create event",
   defaultValues,
+  onSuccessRedirect = "/admin/dashboard/events",
+  onSuccess,
+  onCancel,
 }: EventCreateFormProps) => {
-  const [status, setStatus] = useState<{
-    type: "idle" | "success" | "error";
-    message?: string;
-  }>({ type: "idle" });
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -59,28 +62,17 @@ const EventCreateForm = ({
   });
 
   const onSubmit = (values: EventFormValues) => {
-    setStatus({ type: "idle" });
     startTransition(async () => {
       try {
         const action = onSubmitAction ?? createEventAction;
         await action(values);
-        setStatus({
-          type: "success",
-          message: submitLabel === "Create event" ? "Event created successfully." : "Changes saved.",
-        });
-        form.reset(
-          defaultValues ?? {
-            title: "",
-            date: "",
-            location: "",
-            type: undefined,
-            description: "",
-          },
-        );
+        form.reset(defaultValues ?? undefined);
+        if (onSuccess) onSuccess();
+        else if (onSuccessRedirect) router.replace(onSuccessRedirect);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to create event.";
-        setStatus({ type: "error", message });
+        toast.error("Unable to save event", { description: message });
       }
     });
   };
@@ -184,26 +176,34 @@ const EventCreateForm = ({
               Back to events
             </Link>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? submitLabel === "Create event"
-                  ? "Creating..."
-                  : "Saving..."
-                : submitLabel}
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Spinner className="h-4 w-4" />
+                  <span>
+                    {submitLabel === "Create event"
+                      ? "Creating..."
+                      : "Saving..."}
+                  </span>
+                </span>
+              ) : (
+                submitLabel
+              )}
             </Button>
           </div>
+          {onCancel && (
+            <div className="flex justify-end">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
-
-      {status.type === "success" && status.message && (
-        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-          {status.message}
-        </div>
-      )}
-      {status.type === "error" && status.message && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {status.message}
-        </div>
-      )}
     </div>
   );
 };

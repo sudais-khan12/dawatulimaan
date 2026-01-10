@@ -8,3 +8,4 @@ export * from "./persistence/registration-flow";
 export * from "./persistence/registrations-view";
 export * from "./persistence/events";
 export * from "./persistence/users";
+export * from "./persistence/metrics";

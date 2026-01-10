@@ -1,4 +1,4 @@
-import EventCreateForm from "./EventCreateForm";
+import EventCreateForm from "../../../../../../components/Forms/EventCreateForm";
 
 const NewEventPage = () => {
   return (
@@ -9,7 +9,7 @@ const NewEventPage = () => {
           Add a new event for attendees to register.
         </p>
       </div>
-      <EventCreateForm />
+      <EventCreateForm onSuccessRedirect="/admin/dashboard/events" />
     </div>
   );
 };

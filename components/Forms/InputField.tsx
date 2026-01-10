@@ -20,11 +20,13 @@ import type { Control, FieldPath, FieldValues } from "react-hook-form";
 type InputFieldProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
   field: InputFieldConfig;
+  disabled?: boolean;
 };
 
 const InputField = <TFieldValues extends FieldValues>({
   control,
   field,
+  disabled = false,
 }: InputFieldProps<TFieldValues>) => {
   if (field.type === "checkbox") {
     return (
@@ -37,6 +39,7 @@ const InputField = <TFieldValues extends FieldValues>({
               <Checkbox
                 checked={!!controlField.value}
                 onCheckedChange={(value) => controlField.onChange(value === true)}
+                disabled={disabled}
               />
             </FormControl>
             <div className="space-y-1 leading-tight">
@@ -62,6 +65,7 @@ const InputField = <TFieldValues extends FieldValues>({
             <Select
               onValueChange={controlField.onChange}
               defaultValue={(controlField.value as string) ?? ""}
+              disabled={disabled}
             >
               <FormControl>
                 <SelectTrigger className="w-full">
@@ -95,6 +99,7 @@ const InputField = <TFieldValues extends FieldValues>({
               type={field.type === "email" ? "email" : "text"}
               placeholder={field.placeholder}
               {...controlField}
+                disabled={disabled}
             />
           </FormControl>
           <FormMessage />

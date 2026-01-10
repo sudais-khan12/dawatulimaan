@@ -1,4 +1,4 @@
-import EventCard from "@/app/components/EventCard";
+import PublicEventsGrid from "@/components/PublicEventsGrid";
 import { getUpcomingEvents } from "@/lib/persistence/events";
 
 const EventsListPage = async () => {
@@ -13,24 +13,7 @@ const EventsListPage = async () => {
         </p>
       </div>
 
-      {events.length === 0 ? (
-        <div className="rounded-md border border-gray-200 bg-white px-4 py-6 text-sm text-gray-700">
-          No upcoming events found.
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              title={event.title ?? "Untitled event"}
-              slug={event.slug}
-              date={event.date}
-              location={event.location}
-              description={event.description}
-            />
-          ))}
-        </div>
-      )}
+      <PublicEventsGrid events={events} />
     </div>
   );
 };

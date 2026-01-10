@@ -99,7 +99,7 @@ export const getUserById = async (
 
 export const getAllUsers = async (
   client = getSupabaseClient(),
-): Promise<{ data: { id: string; email: string; role: string; created_at?: string | null }[]; error: Error | null }> => {
+): Promise<{ data: UserLite[]; error: Error | null }> => {
   const { data, error } = await client
     .from("users")
     .select("id, email, role, created_at")
@@ -109,5 +109,12 @@ export const getAllUsers = async (
     return { data: [], error: error ?? new Error("No users found") };
   }
 
-  return { data: data as { id: string; email: string; role: string; created_at?: string | null }[], error: null };
+  return { data: data as UserLite[], error: null };
+};
+
+export type UserLite = {
+  id: string;
+  email: string;
+  role: string;
+  created_at?: string | null;
 };

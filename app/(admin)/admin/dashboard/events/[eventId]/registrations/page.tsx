@@ -1,4 +1,4 @@
-import RegistrationsTable from "./RegistrationsTable";
+import RegistrationsClient from "@/components/Admin/RegistrationsClient";
 import { getRegistrationsByEvent } from "@/lib/persistence/registrations-view";
 import Link from "next/link";
 
@@ -13,9 +13,7 @@ const AdminEventRegistrationsPage = async ({ params }: PageProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Registrations
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Registrations</h1>
         <p className="text-sm text-gray-600">Event ID: {eventId}</p>
         <div className="mt-3">
           <Link
@@ -36,7 +34,7 @@ const AdminEventRegistrationsPage = async ({ params }: PageProps) => {
           No registrations found for this event.
         </div>
       ) : (
-        <RegistrationsTable rows={data} />
+        <RegistrationsClient rows={data} />
       )}
     </div>
   );

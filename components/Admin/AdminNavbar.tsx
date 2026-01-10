@@ -5,11 +5,9 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-const links = [
-  { href: "/admin/dashboard/events", label: "Events" },
-];
+const links = [{ href: "/admin/dashboard/events", label: "Events" }];
 
-const Nav = () => {
+const AdminNavbar = () => {
   const pathname = usePathname();
 
   return (
@@ -22,7 +20,7 @@ const Nav = () => {
             href={link.href}
             className={cn(
               "block rounded-md px-3 py-2 hover:bg-gray-100",
-              isActive && "bg-gray-100 text-gray-900",
+              isActive && "bg-gray-100 text-gray-900"
             )}
           >
             {link.label}
@@ -33,4 +31,4 @@ const Nav = () => {
   );
 };
 
-export default Nav;
+export default AdminNavbar;

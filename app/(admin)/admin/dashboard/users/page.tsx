@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getAllUsers } from "@/lib/persistence/users";
+import UsersListClient from "./UsersListClient";
 
 const UsersListPage = async () => {
   const { data: users, error } = await getAllUsers();
@@ -29,36 +30,7 @@ const UsersListPage = async () => {
           No users found.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-md border">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Role
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Created
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-4 py-3 text-gray-900">{user.email}</td>
-                  <td className="px-4 py-3 text-gray-700">{user.role}</td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {user.created_at
-                      ? new Date(user.created_at).toLocaleString()
-                      : "N/A"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <UsersListClient users={users} />
       )}
     </div>
   );

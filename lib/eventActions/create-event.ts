@@ -1,8 +1,8 @@
 "use server";
 
-import { eventFormSchema } from "@/app/(admin)/admin/dashboard/events/new/schema";
 import { createEvent } from "@/lib/persistence/events";
 import { slugify } from "@/lib/slugify";
+import { eventFormSchema } from "@/schema/new";
 
 export const createEventAction = async (values: unknown) => {
   const parsed = eventFormSchema.safeParse(values);

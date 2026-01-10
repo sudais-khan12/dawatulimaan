@@ -4,13 +4,7 @@ export const demoEventFormFields: FormFieldConfig[] = [
   {
     id: "heading",
     type: "heading",
-    content: "Community Outreach Registration",
-  },
-  {
-    id: "instructions",
-    type: "instructions",
-    content:
-      "Share a few details so we can plan seating and follow up with event updates.",
+    content: "Quick Registration",
   },
   {
     id: "fullName",
@@ -42,10 +36,5 @@ export const demoEventFormFields: FormFieldConfig[] = [
     type: "checkbox",
     label: "I can volunteer on the day of the event",
     required: false,
-  },
-  {
-    id: "notice",
-    type: "notice",
-    content: "We’ll confirm details via email closer to the event date.",
   },
 ];

@@ -3,9 +3,6 @@
 import { buildFormSchema } from "@/lib/forms/schema";
 import { demoEventFormFields } from "@/lib/forms/DemoEventForm";
 import { registerForEvent } from "@/lib/persistence/registration-flow";
-import { getEventBySlug } from "@/lib/persistence/events";
-import type { FormFieldConfig } from "@/lib/forms/types";
-import { z } from "zod";
 
 const splitName = (fullName: string) => {
   const parts = fullName.trim().split(/\s+/);
@@ -19,13 +16,9 @@ export async function submitEventRegistration(
   values: Record<string, unknown>
 ) {
   // Load event and use its form config when available.
-  const { data: event } = await getEventBySlug(eventSlug);
-  const formConfig =
-    (event?.form_config as unknown as FormFieldConfig[] | undefined) ??
-    demoEventFormFields;
+  const formConfig = demoEventFormFields;
 
   const formSchema = buildFormSchema(formConfig);
-  type FormValues = z.infer<typeof formSchema>;
 
   // Validate server-side for safety.
   const parsed = formSchema.parse(values);
