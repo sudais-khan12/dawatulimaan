@@ -1,4 +1,6 @@
+import RegistrationsTable from "./RegistrationsTable";
 import { getRegistrationsByEvent } from "@/lib/persistence/registrations-view";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{ eventId: string }>;
@@ -14,9 +16,15 @@ const AdminEventRegistrationsPage = async ({ params }: PageProps) => {
         <h1 className="text-2xl font-semibold text-gray-900">
           Registrations
         </h1>
-        <p className="text-sm text-gray-600">
-          Event ID: {eventId}
-        </p>
+        <p className="text-sm text-gray-600">Event ID: {eventId}</p>
+        <div className="mt-3">
+          <Link
+            href="/admin/dashboard/events"
+            className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Back to events list
+          </Link>
+        </div>
       </div>
 
       {error ? (
@@ -28,36 +36,7 @@ const AdminEventRegistrationsPage = async ({ params }: PageProps) => {
           No registrations found for this event.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-md border">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Full name
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">
-                  Registered at
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {data.map((row) => (
-                <tr key={row.id}>
-                  <td className="px-4 py-3 text-gray-900">{row.fullName}</td>
-                  <td className="px-4 py-3 text-gray-700">{row.email}</td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {row.createdAt
-                      ? new Date(row.createdAt).toLocaleString()
-                      : "N/A"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <RegistrationsTable rows={data} />
       )}
     </div>
   );

@@ -7,9 +7,17 @@ const AdminEventsPage = async () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
-        <p className="text-sm text-gray-600">List of all events.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
+          <p className="text-sm text-gray-600">List of all events.</p>
+        </div>
+        <Link
+          href="/admin/dashboard/events/new"
+          className="inline-flex items-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+        >
+          Create event
+        </Link>
       </div>
 
       {error ? (
@@ -47,12 +55,18 @@ const AdminEventsPage = async () => {
                       ? new Date(event.date).toLocaleDateString()
                       : "N/A"}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-gray-700 space-x-3">
+                    <Link
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                      href={`/admin/dashboard/events/${event.id}/edit`}
+                    >
+                      Edit
+                    </Link>
                     <Link
                       className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                       href={`/admin/dashboard/events/${event.id}/registrations`}
                     >
-                      View registrations
+                      Registrations
                     </Link>
                   </td>
                 </tr>

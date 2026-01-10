@@ -17,11 +17,13 @@ type SubmissionState =
 
 type EventRegistrationFormProps = {
   eventSlug: string;
+  eventTitle?: string;
   fields?: FormFieldConfig[];
 };
 
 const EventRegistrationForm = ({
   eventSlug,
+  eventTitle,
   fields = demoEventFormFields,
 }: EventRegistrationFormProps) => {
   const [state, setState] = useState<SubmissionState>({ status: "idle" });
@@ -68,15 +70,23 @@ const EventRegistrationForm = ({
 
   return (
     <div className="space-y-4">
-      <FormRenderer
-        fields={fields}
-        onSubmit={handleSubmit}
-        key={isDisabled ? "submitted" : "active"}
-      />
-      {state.status === "success" && (
-        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-          {state.message}
+      {state.status === "success" ? (
+        <div className="space-y-3 rounded-md border border-green-200 bg-green-50 px-4 py-4">
+          <h2 className="text-lg font-semibold text-green-900">
+            Registration confirmed
+          </h2>
+          <p className="text-sm text-green-900">
+            You’re registered for {eventTitle ?? "the event"}. A confirmation
+            email will be sent if available.
+          </p>
         </div>
+      ) : (
+        <FormRenderer
+          fields={fields}
+          onSubmit={handleSubmit}
+          key={isDisabled ? "submitted" : "active"}
+          disabled={isDisabled}
+        />
       )}
       {state.status === "error" && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
