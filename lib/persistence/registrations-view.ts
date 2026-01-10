@@ -4,6 +4,7 @@ type RegistrationRow = {
   id: string;
   created_at: string | null;
   person_id: string;
+  attendance: string | null;
   people: {
     first_name: string | null;
     last_name: string | null;
@@ -14,6 +15,7 @@ type RegistrationRow = {
 export type RegistrationView = {
   id: string;
   personId: string;
+  attendance: string | null;
   fullName: string;
   email: string;
   createdAt: string | null;
@@ -26,7 +28,7 @@ export const getRegistrationsByEvent = async (
   const { data, error } = await client
     .from("registrations")
     .select(
-      "id, created_at, person_id, people:person_id(first_name, last_name, email)"
+      "id, created_at, person_id, attendance, people:person_id(first_name, last_name, email)"
     )
     .eq("event_id", eventId)
     .order("created_at", { ascending: false });
@@ -38,6 +40,7 @@ export const getRegistrationsByEvent = async (
   const mapped = (data as unknown as RegistrationRow[]).map((row) => ({
     id: row.id,
     personId: row.person_id,
+    attendance: row.attendance,
     fullName:
       `${row.people?.first_name ?? ""} ${row.people?.last_name ?? ""}`.trim() ||
       "Unknown",

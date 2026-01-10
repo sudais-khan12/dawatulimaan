@@ -1,5 +1,6 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
-import { sendDemoEventEmails } from "./actions/send-event-emails";
 
 const AdminDashboardPage = () => {
   return (
@@ -9,9 +10,17 @@ const AdminDashboardPage = () => {
         High-level snapshot of admin activity will appear here.
       </p>
 
-      <form action={sendDemoEventEmails} className="pt-2">
-        <Button type="submit">Send demo event emails</Button>
-      </form>
+      <div className="flex flex-wrap gap-3">
+        <Button asChild>
+          <Link href="/admin/dashboard/events/new">Create new event</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/admin/dashboard/events">View events</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/admin/dashboard/users/new">Add users</Link>
+        </Button>
+      </div>
     </div>
   );
 };

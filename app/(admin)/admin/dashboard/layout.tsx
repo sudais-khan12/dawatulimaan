@@ -1,4 +1,6 @@
-import Nav from "./Nav";
+import AdminBreadcrumbs from "@/app/components/admin/AdminBreadcrumbs";
+import AdminNav from "@/app/components/AdminNav";
+import RequireAuth from "../RequireAuth";
 
 export default function DashboardLayout({
   children,
@@ -12,13 +14,18 @@ export default function DashboardLayout({
         <div className="text-sm text-gray-500">Dashboard</div>
       </header>
 
-      <div className="flex">
-        <aside className="w-64 border-r bg-white px-4 py-6">
-          <Nav />
-        </aside>
+      <RequireAuth>
+        <div className="flex">
+          <aside className="w-64 border-r bg-white px-4 py-6">
+            <AdminNav />
+          </aside>
 
-        <main className="flex-1 px-6 py-8">{children}</main>
-      </div>
+          <main className="flex-1 px-6 py-8 space-y-4">
+            <AdminBreadcrumbs />
+            {children}
+          </main>
+        </div>
+      </RequireAuth>
     </div>
   );
 }
