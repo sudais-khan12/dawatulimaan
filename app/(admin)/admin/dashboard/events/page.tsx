@@ -10,8 +10,11 @@ const AdminEventsPage = async () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Events</h1>
-          <p className="text-sm text-gray-600">List of all events.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Events
+          </p>
+          <h1 className="text-3xl font-bold text-slate-900">Manage events</h1>
+          <p className="text-sm text-slate-600">Create, edit, and filter events.</p>
         </div>
         <EventFormModal
           mode="create"
@@ -26,7 +29,7 @@ const AdminEventsPage = async () => {
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       ) : events.length === 0 ? (
-        <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+        <div className="rounded-xl border border-slate-200 bg-white/90 px-4 py-4 text-sm text-slate-700 shadow-sm">
           No events found.
         </div>
       ) : (

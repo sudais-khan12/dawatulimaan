@@ -1,7 +1,8 @@
-import EventRegistrationForm from "@/components/event-registration-form";
-import { getEventBySlug } from "@/lib/persistence/events";
 import Link from "next/link";
+
+import EventRegistrationForm from "@/components/event-registration-form";
 import { demoEventFormFields } from "@/lib/forms/DemoEventForm";
+import { getEventBySlug } from "@/lib/persistence/events";
 
 type EventPageProps = {
   params: Promise<{ slug: string }>;
@@ -13,47 +14,61 @@ const EventPage = async ({ params }: EventPageProps) => {
   const formConfig = demoEventFormFields;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-gray-50">
-      <div className="flex flex-1 items-center justify-center px-3 py-3 md:px-4 md:py-4">
-        <div className="mx-auto w-full max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white px-4 py-4 shadow-sm md:px-5 md:py-5">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <Link
-                href="/events"
-                className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 hover:bg-gray-100"
-              >
-                Back to events
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-gray-700 hover:bg-gray-100"
-              >
-                Back to home
-              </Link>
-            </div>
-            <p className="text-sm uppercase tracking-wide text-gray-500">
+    <div className="min-h-screen bg-gradient-to-b from-white via-[#f5f8fb] to-white">
+      <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-10 md:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               Event registration
             </p>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               {event?.title ?? slug}
             </h1>
-            <div className="space-y-1 text-sm text-gray-700">
+            <p className="text-sm text-slate-600">
+              Secure your spot and keep in touch about updates.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              href="/events"
+              className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary/40 hover:text-primary"
+            >
+              Back to events
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary/40 hover:text-primary"
+            >
+              Back to home
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-xl shadow-slate-200/40 ring-1 ring-black/5 backdrop-blur-sm">
+          <div className="space-y-3 pb-4">
+            <div className="flex flex-wrap gap-3 text-sm text-slate-700">
               {event?.date && (
-                <div>
-                  <span className="font-medium text-gray-900">Date:</span>{" "}
-                  {new Date(event.date).toLocaleDateString()}
-                </div>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 font-semibold text-slate-900">
+                  Date:
+                  <span className="font-medium text-slate-700">
+                    {new Date(event.date).toLocaleDateString()}
+                  </span>
+                </span>
               )}
               {event?.location && (
-                <div>
-                  <span className="font-medium text-gray-900">Location:</span>{" "}
-                  {event.location}
-                </div>
-              )}
-              {event?.description && (
-                <p className="text-gray-600">{event.description}</p>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 font-semibold text-slate-900">
+                  Location:
+                  <span className="font-medium text-slate-700">
+                    {event.location}
+                  </span>
+                </span>
               )}
             </div>
+            {event?.description && (
+              <p className="text-sm leading-relaxed text-slate-700">
+                {event.description}
+              </p>
+            )}
           </div>
 
           <EventRegistrationForm

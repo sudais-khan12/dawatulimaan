@@ -1,15 +1,18 @@
 "use server";
 
 import { createUser } from "@/lib/persistence/users";
-import { getSessionFromCookies } from "@/lib/auth/session";
+import { getRouteHandlerSupabaseClient } from "@/lib/supabase/server";
 import {
   createUserSchema,
   type CreateUserValues,
 } from "@/app/(admin)/admin/dashboard/users/new/schema";
 
 export const createUserAction = async (values: unknown) => {
-  const session = await getSessionFromCookies();
-  if (!session || session.role !== "admin") {
+  const supabase = await getRouteHandlerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) {
     throw new Error("Unauthorized");
   }
 
@@ -22,8 +25,13 @@ export const createUserAction = async (values: unknown) => {
   const result = await createUser(payload);
 
   if (result.error) {
-    if (typeof (result.error as any).code === "string") {
-      const code = (result.error as any).code;
+    if (
+      typeof result.error === "object" &&
+      result.error !== null &&
+      "code" in result.error &&
+      typeof result.error.code === "string"
+    ) {
+      const code = result.error.code;
       if (code === "23505" || code === "409") {
         throw new Error("Email already exists.");
       }

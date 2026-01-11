@@ -1,114 +1,74 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useActionState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loginAction } from "@/lib/login";
+import { requestMagicLink } from "@/app/(admin)/admin/login/actions/request-magic-link";
 
-const loginSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "Password is required"),
-});
+type ActionState = {
+  status: "idle" | "sent" | "error";
+  message: string;
+};
 
-type LoginValues = z.infer<typeof loginSchema>;
+const initialState: ActionState = {
+  status: "idle",
+  message: "",
+};
 
 const LoginForm = () => {
   const params = useSearchParams();
-  const [status, setStatus] = useState<{
-    type: "idle" | "error";
-    message?: string;
-  }>({ type: "idle" });
-  const [isPending, startTransition] = useTransition();
-
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = (values: LoginValues) => {
-    setStatus({ type: "idle" });
-    startTransition(async () => {
-      try {
-        await loginAction({
-          email: values.email,
-          password: values.password,
-          redirectTo: params.get("redirect") || undefined,
-        });
-      } catch (error) {
-        setStatus({
-          type: "error",
-          message:
-            error instanceof Error ? error.message : "Invalid credentials",
-        });
+  const [state, formAction, isPending] = useActionState(
+    async (_: ActionState, formData: FormData) => {
+      const redirect = params.get("redirect");
+      if (redirect) {
+        formData.set("next", redirect);
       }
-    });
-  };
+      return requestMagicLink(_, formData);
+    },
+    initialState
+  );
 
-  const isSubmitting = isPending || form.formState.isSubmitting;
+  const disabled = isPending || state.status === "sent";
+
+  useEffect(() => {
+    if (state.status === "sent" && state.message) {
+      toast.success(state.message);
+    } else if (state.status === "error" && state.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
 
   return (
     <div className="space-y-4">
-      <Form {...form}>
-        <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
+      <form className="space-y-4" action={formAction}>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-800" htmlFor="email">
+            Email
+          </label>
+          <Input
+            id="email"
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="you@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            type="email"
+            placeholder="you@example.com"
+            required
+            autoComplete="email"
+            disabled={disabled}
           />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Signing in..." : "Sign in"}
-          </Button>
-        </form>
-      </Form>
-
-      {status.type === "error" && status.message && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {status.message}
         </div>
-      )}
+
+        <input type="hidden" name="next" value={params.get("redirect") ?? ""} />
+
+        <Button type="submit" className="w-full" disabled={disabled}>
+          {state.status === "sent"
+            ? "Magic link sent"
+            : isPending
+            ? "Sending..."
+            : "Send magic link"}
+        </Button>
+      </form>
     </div>
   );
 };

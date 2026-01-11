@@ -62,7 +62,7 @@ const EventsGrid = ({ events }: Props) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <Input
@@ -72,7 +72,7 @@ const EventsGrid = ({ events }: Props) => {
               setPage(1);
             }}
             placeholder="Search title or location"
-            className="w-full sm:w-64"
+            className="w-full sm:w-72"
           />
           <Select
             value={typeFilter}
@@ -94,7 +94,7 @@ const EventsGrid = ({ events }: Props) => {
       </div>
 
       {pageItems.length === 0 ? (
-        <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+        <div className="rounded-xl border border-slate-200 bg-white/90 px-4 py-4 text-sm text-slate-700 shadow-sm">
           No events match your filters.
         </div>
       ) : (
@@ -102,18 +102,16 @@ const EventsGrid = ({ events }: Props) => {
           {pageItems.map((event) => (
             <div
               key={event.id}
-              className="flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="flex h-full flex-col justify-between rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-md shadow-slate-200/60 ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-slate-900">
                   {event.title ?? "Untitled event"}
                 </h3>
-                <p className="text-sm text-gray-600">
-                  {formatDate(event.date)}
-                </p>
+                <p className="text-sm text-slate-600">{formatDate(event.date)}</p>
                 {event.location && (
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium text-gray-900">Location:</span>{" "}
+                  <p className="text-sm text-slate-700">
+                    <span className="font-semibold text-slate-900">Location:</span>{" "}
                     {event.location}
                   </p>
                 )}
@@ -144,12 +142,13 @@ const EventsGrid = ({ events }: Props) => {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-700">
+        <div className="flex items-center justify-between text-sm text-slate-700">
           <div>
             Page {currentPage} of {totalPages}
           </div>
           <div className="flex items-center gap-2">
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -158,6 +157,7 @@ const EventsGrid = ({ events }: Props) => {
               Previous
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
