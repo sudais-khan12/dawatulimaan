@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,34 +23,25 @@ import {
 import { createUserAction } from "@/app/(admin)/admin/dashboard/users/actions/create-user";
 
 const UserCreateForm = () => {
-  const [status, setStatus] = useState<{
-    type: "idle" | "success" | "error";
-    message?: string;
-  }>({ type: "idle" });
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       email: "",
-      password: "",
-      role: "admin",
     },
   });
 
   const onSubmit = (values: CreateUserValues) => {
-    setStatus({ type: "idle" });
     startTransition(async () => {
       try {
         await createUserAction(values);
-        setStatus({ type: "success", message: "User created successfully." });
-        form.reset({ email: "", password: "", role: "admin" });
+        toast.success("Admin email added to allowlist.");
+        form.reset({ email: "" });
       } catch (error) {
-        setStatus({
-          type: "error",
-          message:
-            error instanceof Error ? error.message : "Failed to create user.",
-        });
+        toast.error(
+          error instanceof Error ? error.message : "Failed to create user.",
+        );
       }
     });
   };
@@ -78,34 +70,6 @@ const UserCreateForm = () => {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Role</FormLabel>
-                <FormControl>
-                  <Input {...field} disabled />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <div className="flex items-center justify-between">
             <Link
               href="/admin/dashboard/events"
@@ -114,22 +78,11 @@ const UserCreateForm = () => {
               Back to events
             </Link>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create user"}
+              {isSubmitting ? "Adding..." : "Add admin email"}
             </Button>
           </div>
         </form>
       </Form>
-
-      {status.type === "success" && status.message && (
-        <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-          {status.message}
-        </div>
-      )}
-      {status.type === "error" && status.message && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {status.message}
-        </div>
-      )}
     </div>
   );
 };

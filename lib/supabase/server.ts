@@ -1,19 +1,19 @@
-"use server";
-
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const logoutAction = async () => {
+export const getRouteHandlerSupabaseClient = async () => {
   if (!supabaseUrl || !supabaseAnonKey) {
-    redirect("/admin/login");
+    throw new Error(
+      "Supabase configuration missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
   }
 
   const cookieStore = await cookies();
-  const supabase = createServerClient(supabaseUrl!, supabaseAnonKey!, {
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
@@ -26,7 +26,4 @@ export const logoutAction = async () => {
       },
     },
   });
-
-  await supabase.auth.signOut();
-  redirect("/");
 };

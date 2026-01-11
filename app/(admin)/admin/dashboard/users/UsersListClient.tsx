@@ -40,7 +40,7 @@ const UsersListClient = ({ users }: Props) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          placeholder="Search by email or role"
+          placeholder="Search by email"
           className="w-full sm:w-72"
         />
       </div>
@@ -56,8 +56,12 @@ const UsersListClient = ({ users }: Props) => {
               key={user.id}
               className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
             >
-              <p className="text-sm font-semibold text-gray-900">{user.email}</p>
-              <p className="text-xs text-gray-600">Role: {user.role}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {user.email}
+              </p>
+              <p className="text-xs text-gray-600">
+                Role: {user.role ?? "admin"}
+              </p>
               <p className="text-xs text-gray-600">
                 Created:{" "}
                 {user.created_at

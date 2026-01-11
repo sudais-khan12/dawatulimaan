@@ -4,9 +4,11 @@ const UserCreatePage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Create admin user</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Create admin user
+        </h1>
         <p className="text-sm text-gray-600">
-          Add a new admin account with email and password.
+          Add an admin email to the allowlist for magic-link login.
         </p>
       </div>
       <UserCreateForm />

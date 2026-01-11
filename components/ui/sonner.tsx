@@ -18,11 +18,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       richColors
-      position="top-center"
+      position="top-right"
       toastOptions={{
         className:
-          "text-sm font-semibold text-slate-900 bg-white border border-slate-200 shadow-lg",
-        descriptionClassName: "text-xs font-normal text-slate-800",
+          "text-sm font-semibold text-slate-900 bg-white/95 border border-slate-200 shadow-lg shadow-black/5 rounded-lg px-4 py-3",
+        descriptionClassName: "text-xs font-normal text-slate-700",
         closeButton: true,
       }}
       icons={{

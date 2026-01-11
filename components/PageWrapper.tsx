@@ -4,7 +4,7 @@ type PageWrapperProps = {
 
 const PageWrapper = ({ children }: PageWrapperProps) => {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+    <div className="min-h-screen bg-gradient-to-b from-white via-[#f5f8fb] to-white text-gray-900 antialiased">
       {children}
     </div>
   );
