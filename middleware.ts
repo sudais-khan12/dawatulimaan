@@ -1,46 +1,68 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-import { SESSION_COOKIE, AUTH_SECRET } from "@/lib/auth/constants";
-import { verifySessionTokenEdge } from "@/lib/auth/session-edge";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const ADMIN_PATH = "/admin";
-const LOGIN_PATH = "/admin/login";
-
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const isAdminRoute = pathname.startsWith(ADMIN_PATH);
-  const isLoginRoute = pathname.startsWith(LOGIN_PATH);
+export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isLoginRoute = pathname.startsWith("/admin/login");
 
   if (!isAdminRoute) {
     return NextResponse.next();
   }
 
-  if (!AUTH_SECRET) {
-    return NextResponse.next();
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "Supabase configuration missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
   }
 
-  const token = request.cookies.get(SESSION_COOKIE)?.value;
-  const session = token ? await verifySessionTokenEdge(token) : null;
+  const res = NextResponse.next();
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return req.cookies.get(name)?.value;
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        res.cookies.set(name, value, options);
+      },
+      remove(name: string, options: CookieOptions) {
+        res.cookies.set(name, "", { ...options, maxAge: 0 });
+      },
+    },
+  });
 
-  // Allow unauthenticated access to the login route to avoid redirect loops.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  // If already logged in and visiting login, send to dashboard to avoid loop.
   if (isLoginRoute) {
-    if (session && session.role === "admin") {
-      const dashboardUrl = new URL("/admin/dashboard", request.url);
-      return NextResponse.redirect(dashboardUrl);
+    if (session) {
+      const redirectUrl = new URL("/admin/dashboard", req.url);
+      const redirectRes = NextResponse.redirect(redirectUrl);
+      res.cookies.getAll().forEach((cookie) => {
+        redirectRes.cookies.set(cookie);
+      });
+      return redirectRes;
     }
-    return NextResponse.next();
+    return res;
   }
 
-  // For other admin routes, enforce auth.
-  if (!session || session.role !== "admin") {
-    const redirectUrl = new URL(LOGIN_PATH, request.url);
-    redirectUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(redirectUrl);
+  if (!session) {
+    const redirectUrl = new URL("/admin/login", req.url);
+    redirectUrl.searchParams.set("redirect", req.nextUrl.pathname);
+    const redirectRes = NextResponse.redirect(redirectUrl);
+    res.cookies.getAll().forEach((cookie) => {
+      redirectRes.cookies.set(cookie);
+    });
+    return redirectRes;
   }
 
-  return NextResponse.next();
+  return res;
 }
 
 export const config = {

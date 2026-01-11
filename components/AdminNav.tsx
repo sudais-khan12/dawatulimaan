@@ -29,7 +29,7 @@ const AdminNav = ({ onNavigate }: Props) => {
   };
 
   return (
-    <nav className="space-y-2 text-sm font-medium text-gray-700">
+    <nav className="space-y-2 text-sm font-semibold text-slate-800">
       {links.map((link) => {
         const active =
           pathname === link.href ||
@@ -41,11 +41,19 @@ const AdminNav = ({ onNavigate }: Props) => {
             href={link.href}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700",
-              active && "bg-teal-50 text-teal-700",
+              "group flex items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-primary/10 hover:text-primary",
+              active &&
+                "bg-primary/10 text-primary shadow-sm shadow-primary/10 border border-primary/15",
             )}
           >
-            {Icon && <Icon className="h-4 w-4" />}
+            {Icon && (
+              <Icon
+                className={cn(
+                  "h-4 w-4 text-slate-500 transition group-hover:text-primary",
+                  active && "text-primary",
+                )}
+              />
+            )}
             {link.label}
           </Link>
         );
@@ -54,7 +62,7 @@ const AdminNav = ({ onNavigate }: Props) => {
         type="button"
         onClick={handleLogout}
         disabled={isPending}
-        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-4 flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <LogOut className="h-4 w-4" />
         {isPending ? "Logging out..." : "Logout"}
